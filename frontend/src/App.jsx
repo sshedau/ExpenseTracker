@@ -1,13 +1,10 @@
-import { useState } from 'react'
-import './App.css'
+import Dashboard from "./pages/Dashboard";
+import { ThemeProvider } from "./context/ThemeContext";
 
-function App() {
-
+export default function App() {
   return (
-    <>
-      
-    </>
-  )
+    <ThemeProvider>
+      <Dashboard />
+    </ThemeProvider>
+  );
 }
-
-export default App

@@ -60,7 +60,7 @@ function AddExpenseForm({ onAdd }) {
           onChange={(e) => setAmount(e.target.value)}
         />
         <select
-          className={`${inputBase} flex-shrink-0 w-auto`}
+          className={`${inputBase} w-auto`}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >

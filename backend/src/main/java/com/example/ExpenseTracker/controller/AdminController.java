@@ -32,6 +32,12 @@ public class AdminController {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
 
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+
+        return ResponseEntity.ok(userService.getUserById(id)) ;
+    }
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
 

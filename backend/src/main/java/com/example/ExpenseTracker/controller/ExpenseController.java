@@ -16,23 +16,27 @@ public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
 
-    @PostMapping
-    public ResponseEntity<Expense> addExpense(@RequestBody ExpenseRequest request) {
-
-        Expense expense = expenseService.addExpense(request);
-        return ResponseEntity.ok(expense);
+    @PostMapping("/users/{userId}")
+    public Expense addExpense(@PathVariable Long userId,
+                              @RequestBody ExpenseRequest request) {
+        System.out.println("----------------In ExpenseController----------------------------");
+        return expenseService.addExpense(userId, request);
     }
 
-    @GetMapping
+    @GetMapping("/users")
     public ResponseEntity<List<Expense>> getUserExpenses() {
 
         return ResponseEntity.ok(expenseService.getUserExpenses());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Expense> getExpenseById(@PathVariable Long id) {
+    @GetMapping("/{expenseId}")
+    public ResponseEntity<Expense> getExpenseById(@PathVariable Long expenseId) {
+        return ResponseEntity.ok(expenseService.getExpenseById(expenseId));
+    }
 
-        return ResponseEntity.ok(expenseService.getExpenseById(id));
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<Expense>> getUserExpenses(@PathVariable Long userId) {
+        return ResponseEntity.ok(expenseService.getUserExpenses(userId));
     }
 
     @PutMapping("/{id}")

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/budget")
 public class BudgetController {
@@ -21,8 +23,16 @@ public class BudgetController {
     }
 
     @GetMapping
-    public ResponseEntity<Budget> getBudget() {
+    public ResponseEntity<List<Budget>> getBudget() {
 
-        return ResponseEntity.ok(budgetService.getBudget());
+        return ResponseEntity.ok(budgetService.getAllBudgets());
     }
+
+    // Get budget by userId .
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<Budget>> getBudgetByUserId(@PathVariable Long userId) {
+
+        return ResponseEntity.ok(budgetService.getBudgetByUserId(userId));
+    }
+
 }

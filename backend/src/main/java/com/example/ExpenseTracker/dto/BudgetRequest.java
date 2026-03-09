@@ -6,7 +6,7 @@ import lombok.Data;
 public class BudgetRequest {
 
     private String month;
-
     private double limitAmount;
+    private Long userId;
 
 }

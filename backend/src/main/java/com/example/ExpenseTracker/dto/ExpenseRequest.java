@@ -8,11 +8,8 @@ import java.time.LocalDate;
 public class ExpenseRequest {
 
     private String title;
-
     private double amount;
-
     private String category;
-
     private LocalDate date;
 
 }

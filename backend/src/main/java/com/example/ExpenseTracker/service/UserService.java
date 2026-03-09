@@ -18,6 +18,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user ;
+    }
+
     public void deleteUser(Long id) {
 
         userRepository.deleteById(id);

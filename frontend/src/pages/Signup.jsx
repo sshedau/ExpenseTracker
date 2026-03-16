@@ -1,19 +1,19 @@
 import { useState } from "react";
-import { Wallet, Eye, EyeOff, Sun, Moon, Monitor, Check } from "lucide-react";
+import { Wallet, Eye, EyeOff, Check } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import Header from "../layout/Header";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-
-export default function Signup({ onNavigate }) {
-  const { isDark, toggle, override } = useTheme();
-  const ThemeIcon = override !== null ? (isDark ? Moon : Sun) : Monitor;
+export default function Signup() {
+  const { isDark } = useTheme();
+  const { signup, loading, error, clearError } = useAuth();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const { signup, loading, error, clearError } = useAuth();
 
   const passwordStrength = () => {
     if (password.length === 0) return 0;
@@ -35,9 +35,11 @@ export default function Signup({ onNavigate }) {
   const handleSubmit = async () => {
     if (!name.trim() || !email.trim() || !password.trim()) return;
     if (password.length < 6) return;
+
     clearError();
     const ok = await signup(name, email, password);
-    if (ok) onNavigate("dashboard");
+
+    if (ok) navigate("/dashboard");
   };
 
   const inputBase =
@@ -51,51 +53,42 @@ export default function Signup({ onNavigate }) {
 
   return (
     <div
-      className={`min-h-screen flex flex-col transition-colors duration-300 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+        isDark ? "bg-slate-900" : "bg-slate-50"
+      }`}
     >
       {/* Grid background */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
         style={{
-          backgroundImage: `linear-gradient(${isDark ? "#ffffff" : "#000000"} 1px, transparent 1px), linear-gradient(90deg, ${isDark ? "#ffffff" : "#000000"} 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(${
+            isDark ? "#ffffff" : "#000000"
+          } 1px, transparent 1px), linear-gradient(90deg, ${
+            isDark ? "#ffffff" : "#000000"
+          } 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
         }}
       />
 
-      {/* Top bar */}
       <Header />
-      {/* <div className="relative flex items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/30">
-            <Wallet size={15} className="text-white" />
-          </div>
-          <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">
-            Ledger<span className="text-indigo-500">.</span>
-          </span>
-        </div>
-        <button
-          onClick={toggle}
-          className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 shadow-sm"
-        >
-          <ThemeIcon size={15} />
-        </button>
-      </div> */}
 
-      {/* Card */}
       <div className="relative flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          {/* Glow */}
+
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 shadow-xl shadow-slate-200/60 dark:shadow-slate-900/60 p-8">
+
             {/* Heading */}
             <div className="mb-8 text-center">
               <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mx-auto mb-4">
                 <Wallet size={22} className="text-white" />
               </div>
+
               <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
                 Create account
               </h2>
+
               <p className="text-sm text-slate-400 dark:text-slate-500 mt-1.5 font-medium">
                 Start tracking your finances today
               </p>
@@ -123,10 +116,12 @@ export default function Signup({ onNavigate }) {
 
             {/* Fields */}
             <div className="space-y-4">
+
               <div>
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 tracking-wide uppercase">
                   Full Name
                 </label>
+
                 <input
                   type="text"
                   placeholder="Name"
@@ -140,6 +135,7 @@ export default function Signup({ onNavigate }) {
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 tracking-wide uppercase">
                   Email
                 </label>
+
                 <input
                   type="email"
                   placeholder="you@example.com"
@@ -153,6 +149,7 @@ export default function Signup({ onNavigate }) {
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 tracking-wide uppercase">
                   Password
                 </label>
+
                 <div className="relative">
                   <input
                     type={showPass ? "text" : "password"}
@@ -161,6 +158,7 @@ export default function Signup({ onNavigate }) {
                     onChange={(e) => setPassword(e.target.value)}
                     className={`${inputBase} pr-11`}
                   />
+
                   <button
                     onClick={() => setShowPass(!showPass)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-150"
@@ -169,7 +167,6 @@ export default function Signup({ onNavigate }) {
                   </button>
                 </div>
 
-                {/* Password strength bar */}
                 {password.length > 0 && (
                   <div className="mt-2">
                     <div className="h-1 w-full rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
@@ -177,13 +174,14 @@ export default function Signup({ onNavigate }) {
                         className={`h-full rounded-full transition-all duration-300 ${strengthInfo.color} ${strengthInfo.width}`}
                       />
                     </div>
+
                     <p
                       className={`text-[11px] font-semibold mt-1 ${
                         strength === 1
                           ? "text-rose-500"
                           : strength === 2
-                            ? "text-amber-400"
-                            : "text-emerald-500"
+                          ? "text-amber-400"
+                          : "text-emerald-500"
                       }`}
                     >
                       {strengthInfo.label} password
@@ -196,9 +194,10 @@ export default function Signup({ onNavigate }) {
             {/* Submit */}
             <button
               onClick={handleSubmit}
-              className="mt-6 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-sm font-bold tracking-wide transition-all duration-150 shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40"
+              disabled={loading}
+              className="mt-6 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-sm font-bold tracking-wide transition-all duration-150 shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 disabled:opacity-50"
             >
-              Create Account
+              {loading ? "Creating..." : "Create Account"}
             </button>
 
             {/* Divider */}
@@ -214,7 +213,7 @@ export default function Signup({ onNavigate }) {
             <p className="text-center text-sm text-slate-500 dark:text-slate-400 font-medium">
               Already have an account?{" "}
               <button
-                onClick={() => onNavigate("login")}
+                onClick={() => navigate("/")}
                 className="text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold transition-colors duration-150"
               >
                 Sign in
@@ -224,7 +223,6 @@ export default function Signup({ onNavigate }) {
         </div>
       </div>
 
-      {/* Footer */}
       <div className="relative pb-6 text-center">
         <p className="text-[11px] font-medium text-slate-300 dark:text-slate-600 tracking-wide">
           Expense Tracker · Personal Finance Dashboard

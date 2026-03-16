@@ -6,10 +6,10 @@ const AuthContext = createContext(null);
 const MOCK_USERS = [
   {
     id: 1,
-    name: "John Doe",
-    email: "john@example.com",
+    name: "Your Name",
+    email: "name@example.com",
     password: "password123",
-    avatar: "JD",
+    avatar: "HD",
     joinedDate: "January 2025",
   },
 ];

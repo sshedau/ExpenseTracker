@@ -17,12 +17,15 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
 
-
-function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
+function SettingsDropdown({ onClose, buttonRef, isLoggedIn }) {
   const { isDark, toggle, resetToSystem, override, systemTheme } = useTheme();
   const [showThemeSubmenu, setShowThemeSubmenu] = useState(false);
   const ref = useRef(null);
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
+  const location = useLocation();
 
   // Close on outside click
   useEffect(() => {
@@ -60,7 +63,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               label: "Profile",
               sub: "View your profile",
               action: () => {
-                onNavigate?.("profile");
+                navigate("/profile");
                 onClose();
               },
             },
@@ -69,7 +72,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               label: "Account Settings",
               sub: "Update personal info",
               action: () => {
-                onNavigate?.("account");
+                navigate("/account");
                 onClose();
               },
             },
@@ -89,7 +92,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               label: "Security",
               sub: "Password & 2FA",
               action: () => {
-                onNavigate?.("security");
+                navigate("/security");
                 onClose();
               },
             },
@@ -98,7 +101,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               label: "Notifications",
               sub: "Manage alerts",
               action: () => {
-                onNavigate?.("notifications");
+                navigate("/notifications");
                 onClose();
               },
             },
@@ -111,7 +114,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               label: "Help & Support",
               sub: "Docs & contact",
               action: () => {
-                onNavigate?.("help");
+                navigate("/help");
                 onClose();
               },
             },
@@ -125,7 +128,8 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               sub: "Sign out of Ledger",
               danger: true,
               action: () => {
-                onNavigate?.("login");
+                logout();
+                navigate("/", { replace: true });
                 onClose();
               },
             },
@@ -147,7 +151,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               label: "Notifications",
               sub: "Manage alerts",
               action: () => {
-                onNavigate?.("notifications");
+                navigate("/notifications");
                 onClose();
               },
             },
@@ -156,7 +160,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
               label: "Help & Support",
               sub: "Docs & contact",
               action: () => {
-                onNavigate?.("help");
+                navigate("/help");
                 onClose();
               },
             },
@@ -173,21 +177,23 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
     >
       {/* User info strip */}
       {isLoggedIn && (
-      <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-700/30">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/30 flex-shrink-0">
-            <span className="text-white text-xs font-black">JD</span>
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
-              John Doe
-            </p>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">
-              john@example.com
-            </p>
+        <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-700/30">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/30 flex-shrink-0">
+              <span className="text-white text-xs font-black">
+                {user?.avatar}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                {user?.name}
+              </p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">
+                {user?.email}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Menu sections */}
@@ -309,7 +315,7 @@ function SettingsDropdown({ onClose, onNavigate, buttonRef, isLoggedIn }) {
   );
 }
 
-export default function Header({ onNavigate }) {
+export default function Header() {
   const { isDark, toggle, override } = useTheme();
   const isOverriding = override !== null;
   const ThemeIcon = isOverriding ? (isDark ? Moon : Sun) : Monitor;
@@ -373,7 +379,6 @@ export default function Header({ onNavigate }) {
             <SettingsDropdown
               buttonRef={buttonRef}
               onClose={() => setSettingsOpen(false)}
-              onNavigate={onNavigate}
               isLoggedIn={isLoggedIn}
             />
           )}

@@ -11,6 +11,8 @@ import TransactionRow from "../components/TransactionRow";
 import CategoryBreakdown from "../components/CategoryBreakdown";
 import BarChart from "../components/BarChart";
 import AddExpenseForm from "../components/AddExpenseForm";
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
 
 function Dashboard() {
   const { isDark, toggle, override, systemTheme } = useTheme();
@@ -38,39 +40,11 @@ function Dashboard() {
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Header />
 
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         {/* Header */}
-        <header className="flex items-center justify-between mb-10">
-          <div>
-            <div className="flex items-center gap-2.5 mb-1">
-              <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <Wallet size={16} className="text-white" />
-              </div>
-              <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                Ledger<span className="text-indigo-500">.</span>
-              </h1>
-            </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium pl-10">
-              March 2026 · Personal Finance
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isOverriding && (
-              <span className="hidden sm:block text-[10px] font-semibold uppercase tracking-widest px-2 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400">
-                Manual Override
-              </span>
-            )}
-            <button
-              onClick={toggle}
-              title={`Switch to ${isDark ? "light" : "dark"} mode (currently ${isOverriding ? "manual" : "system"})`}
-              className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 shadow-sm"
-            >
-              <ThemeIcon size={16} />
-            </button>
-          </div>
-        </header>
+        
 
         {/* Metric Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -167,15 +141,7 @@ function Dashboard() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-10 flex items-center justify-between text-[10px] font-medium text-slate-300 dark:text-slate-600">
-          <span>Ledger · Personal Finance Dashboard</span>
-          <span className="flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-indigo-500" : "bg-amber-400"}`} />
-            {isOverriding
-              ? `${isDark ? "Dark" : "Light"} (manual)`
-              : `${isDark ? "Dark" : "Light"} (system: ${systemTheme})`}
-          </span>
-        </footer>
+        <Footer/>
 
       </div>
     </div>
@@ -183,3 +149,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+

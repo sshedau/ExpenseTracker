@@ -8,31 +8,52 @@ import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile";
 import Account from "./pages/Account";
-import Security from "./pages/Security";
 import HelpNSupport from "./pages/HelpNSupport";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Notification from "./pages/Notification";
+import ResetPassword from "./pages/ResetPassword";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
-
       {/* Public routes */}
+
       <Route
         path="/"
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Login />
+          )
+        }
       />
 
       <Route
         path="/signup"
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <Signup />}
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Signup />
+          )
+        }
       />
 
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route
+        path="/forgot-password"
+        element={<ForgotPassword />}
+      />
+
+      <Route
+        path="/reset-password"
+        element={<ResetPassword />}
+      />
 
       {/* Protected routes */}
+
       <Route
         path="/dashboard"
         element={
@@ -61,15 +82,6 @@ function AppRoutes() {
       />
 
       <Route
-        path="/security"
-        element={
-          <ProtectedRoute>
-            <Security />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/help"
         element={
           <ProtectedRoute>
@@ -82,12 +94,13 @@ function AppRoutes() {
         path="/notifications"
         element={
           <ProtectedRoute>
-            <Notification/>
+            <Notification />
           </ProtectedRoute>
         }
       />
 
-      {/* Example ADMIN route */}
+      {/* Admin route */}
+
       <Route
         path="/admin"
         element={
@@ -97,6 +110,11 @@ function AppRoutes() {
         }
       />
 
+      {/* Unknown URL */}
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
     </Routes>
   );
 }

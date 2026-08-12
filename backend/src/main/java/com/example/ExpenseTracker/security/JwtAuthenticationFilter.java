@@ -19,7 +19,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter
+        extends OncePerRequestFilter {
 
     @Autowired
     private JwtService jwtService;
@@ -27,36 +28,90 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserRepository userRepository;
 
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader =
+                request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+
+        // No JWT
+        if (authHeader == null ||
+                !authHeader.startsWith("Bearer ")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-        String email = jwtService.extractEmail(token);
 
-        User user = userRepository.findByEmail(email).orElse(null);
+        try {
 
-        if (user != null) {
-            String role = user.getRole();
-            System.out.println("ROLE FROM DB: " + role);
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            user,
-                            null,
-                            Collections.singletonList(new SimpleGrantedAuthority(role))
+            String token =
+                    authHeader.substring(7);
+
+            String email =
+                    jwtService.extractEmail(token);
+
+
+            User user =
+                    userRepository
+                            .findByEmail(email)
+                            .orElse(null);
+
+
+            if (user != null) {
+
+                String role = user.getRole();
+
+                System.out.println(
+                        "ROLE FROM DB: " + role
+                );
+
+
+                if (role != null) {
+
+                    // Normalize role
+                    role = role.trim();
+
+                    if (role.startsWith("ROLE_")) {
+                        role = role.substring(5);
+                    }
+
+
+                    System.out.println(
+                            "AUTHORITY: " + role
                     );
 
-            SecurityContextHolder.getContext().setAuthentication(auth);
+
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    user,
+                                    null,
+                                    Collections.singletonList(
+                                            new SimpleGrantedAuthority(role)
+                                    )
+                            );
+
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(auth);
+                }
+            }
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "JWT authentication failed: "
+                            + e.getMessage()
+            );
         }
+
 
         filterChain.doFilter(request, response);
     }

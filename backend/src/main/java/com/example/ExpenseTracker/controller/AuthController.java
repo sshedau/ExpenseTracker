@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.ExpenseTracker.dto.ResetPasswordRequest;
 
 import java.util.Map;
 
@@ -36,7 +37,6 @@ public class AuthController {
 
     @PostMapping("/check-user")
     public ResponseEntity<?> checkUser(@RequestBody Map<String, String> req) {
-
         String email = req.get("email");
 
         if (!userRepository.findByEmail(email).isPresent()) {
@@ -45,5 +45,21 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(Map.of("message", "User exists"));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(
+            @RequestBody Map<String, String> req) {
+
+        String email = req.get("email");
+
+        return authService.forgotPassword(email);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestBody ResetPasswordRequest request) {
+
+        return authService.resetPassword(request);
     }
 }

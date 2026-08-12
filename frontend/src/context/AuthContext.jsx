@@ -9,12 +9,18 @@ import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext(null);
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load user from token on refresh
+  // =========================
+  // LOAD USER FROM TOKEN
+  // =========================
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -30,157 +36,237 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error("Invalid token:", err);
 
-      // Remove bad token
       localStorage.removeItem("token");
       setUser(null);
     }
   }, []);
 
-  // ── Login ────────────────────────────────────────────────────────────────
-  const login = useCallback(async (email, password) => {
-  setLoading(true);
-  setError("");
+  // =========================
+  // LOGIN
+  // =========================
 
-  try {
-    const res = await fetch("http://localhost:8081/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+  const login = useCallback(
+    async (email, password) => {
+      setLoading(true);
+      setError("");
 
-    let data;
+      try {
+        const res = await fetch(
+          `${API_URL}/auth/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+          }
+        );
 
-    try {
-      data = await res.json();
-    } catch {
-      data = {};
-    }
+        let data;
 
-    if (!res.ok) {
-      throw new Error(data.message || "User does not exist");
-    }
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
 
-    // ✅ decode only after success
-    const decoded = jwtDecode(data.token);
+        if (!res.ok) {
+          throw new Error(
+            data.message || "Login failed"
+          );
+        }
 
-    // Store token
-    localStorage.setItem("token", data.token);
+        if (!data.token) {
+          throw new Error(
+            "Token not received from server"
+          );
+        }
 
-    setUser({
-      email,
-      token: data.token,
-      role: decoded.role,
-    });
+        const decoded = jwtDecode(data.token);
 
-    setLoading(false);
-    return true;
+        localStorage.setItem(
+          "token",
+          data.token
+        );
 
-  } catch (err) {
-    setError(err.message);
-    setLoading(false);
-    return false;
-  }
-}, []);
+        setUser({
+          email,
+          token: data.token,
+          role: decoded.role,
+        });
 
-  // ── Signup ───────────────────────────────────────────────────────────────
-  const signup = useCallback(async (name, email, password) => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch("http://localhost:8081/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
+        return true;
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+        return false;
+      } finally {
+        setLoading(false);
       }
+    },
+    []
+  );
 
-      const decoded = jwtDecode(data.token);
+  // =========================
+  // SIGNUP
+  // =========================
 
-      if (!res.ok) {
-        throw new Error(data.message || "Signup failed");
+  const signup = useCallback(
+    async (name, email, password) => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await fetch(
+          `${API_URL}/auth/register`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              email,
+              password,
+            }),
+          }
+        );
+
+        let data;
+
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+
+        if (!res.ok) {
+          throw new Error(
+            data.message || "Signup failed"
+          );
+        }
+
+        if (!data.token) {
+          throw new Error(
+            "Token not received from server"
+          );
+        }
+
+        const decoded = jwtDecode(data.token);
+
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+
+        setUser({
+          email,
+          token: data.token,
+          role: decoded.role,
+        });
+
+        return true;
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+        return false;
+      } finally {
+        setLoading(false);
       }
+    },
+    []
+  );
 
-      // Store token
-      localStorage.setItem("token", data.token);
+  // =========================
+  // LOGOUT
+  // =========================
 
-      setUser({
-        email,
-        token: data.token,
-        role: decoded.role,
-      });
-      setLoading(false);
-      return true;
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      return false;
-    }
-  }, []);
-
-  // ── Logout ───────────────────────────────────────────────────────────────
   const logout = useCallback(() => {
-    localStorage.removeItem("token"); // remove token
+    localStorage.removeItem("token");
+
     setUser(null);
     setError("");
   }, []);
 
-  // ── Helper: Get Auth Header ──────────────────────────────────────────────
-  const getAuthHeader = () => {
+  // =========================
+  // AUTH HEADER
+  // =========================
+
+  const getAuthHeader = useCallback(() => {
     const token = localStorage.getItem("token");
+
     return {
       Authorization: `Bearer ${token}`,
     };
-  };
+  }, []);
 
-  // ── Example: Fetch Profile ───────────────────────────────────────────────
+  // =========================
+  // FETCH PROFILE
+  // =========================
+
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:8081/api/user/profile", {
-        headers: getAuthHeader(),
-      });
+      const res = await fetch(
+        `${API_URL}/api/user/profile`,
+        {
+          headers: getAuthHeader(),
+        }
+      );
 
-      if (!res.ok) throw new Error("Unauthorized");
-
-      const data = await res.text(); // your API returns string
-      return data;
-    } catch (err) {
-      setError(err.message);
-      return null;
-    }
-  }, []);
-
-  // ── Update Profile ───────────────────────────────────────────────────────
-  const updateProfile = useCallback((updates) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, ...updates };
-
-      // Recalculate avatar initials if name changed
-      if (updates.name) {
-        updated.avatar = updates.name
-          .split(" ")
-          .map((n) => n[0])
-          .join("")
-          .toUpperCase()
-          .slice(0, 2);
+      if (!res.ok) {
+        throw new Error("Unauthorized");
       }
 
-      return updated;
-    });
-  }, []);
+      const data = await res.json();
 
-  // ── Clear Error ──────────────────────────────────────────────────────────
-  const clearError = useCallback(() => setError(""), []);
+      return data;
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+
+      return null;
+    }
+  }, [getAuthHeader]);
+
+  // =========================
+  // UPDATE PROFILE
+  // =========================
+
+  const updateProfile = useCallback(
+    (updates) => {
+      setUser((prev) => {
+        if (!prev) return prev;
+
+        const updated = {
+          ...prev,
+          ...updates,
+        };
+
+        if (updates.name) {
+          updated.avatar = updates.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+        }
+
+        return updated;
+      });
+    },
+    []
+  );
+
+  // =========================
+  // CLEAR ERROR
+  // =========================
+
+  const clearError = useCallback(() => {
+    setError("");
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -193,6 +279,8 @@ export function AuthProvider({ children }) {
         signup,
         logout,
         updateProfile,
+        fetchProfile,
+        getAuthHeader,
         clearError,
       }}
     >
@@ -203,6 +291,12 @@ export function AuthProvider({ children }) {
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+
+  if (!ctx) {
+    throw new Error(
+      "useAuth must be used inside AuthProvider"
+    );
+  }
+
   return ctx;
 };
